@@ -14,8 +14,13 @@
 
             const giverMatchesSection = document.getElementById('giver-matches-section');
             const giverMatchesResults = document.getElementById('giver-matches-results');
+            const showGiverRawDataButton = document.getElementById('show-giver-raw-data');
+            const giverRawDataOutput = document.getElementById('giver-raw-data-output');
+
             const seekerMatchesSection = document.getElementById('seeker-matches-section');
             const seekerMatchesResults = document.getElementById('seeker-matches-results');
+            const showSeekerRawDataButton = document.getElementById('show-seeker-raw-data');
+            const seekerRawDataOutput = document.getElementById('seeker-raw-data-output');
 
             const backToHomeFromGiver = document.getElementById('back-to-home-from-giver');
             const backToHomeFromSeeker = document.getElementById('back-to-home-from-seeker');
@@ -36,8 +41,16 @@
             const modalMessageInput = document.getElementById('modal-message-input');
             const sendMessageButton = document.getElementById('send-message-button');
             const modalConfirmationMessage = document.getElementById('modal-confirmation-message');
+            const modalErrorMessage = document.getElementById('modal-error-message'); 
+
+            // QR Code elements
+            const showQrButton = document.getElementById('show-qr-button');
+            const qrCodeContainer = document.getElementById('qr-code-container');
+            const qrCodeCanvas = document.getElementById('qr-code-canvas');
 
             let currentPerspective = null; 
+            let lastGiverMatches = []; // Store last matches for raw data display
+            let lastSeekerMatches = []; // Store last matches for raw data display
 
             // --- Georgian Regions Data ---
             const georgianRegions = [
@@ -115,6 +128,10 @@
 
             // --- Populate Region Dropdowns ---
             const populateRegions = () => {
+                // Clear existing options first to prevent duplicates on re-render if any
+                giverRegionSelect.innerHTML = '<option value="">Choose a Region</option>';
+                seekerRegionSelect.innerHTML = '<option value="">Choose a Region</option>';
+
                 georgianRegions.forEach(region => {
                     const optionGiver = document.createElement('option');
                     optionGiver.value = region;
@@ -290,6 +307,13 @@
                 giverMatchesSection.classList.add('hidden'); 
                 seekerMatchesSection.classList.add('hidden'); 
 
+                // Hide raw data output when changing view
+                giverRawDataOutput.classList.add('hidden');
+                seekerRawDataOutput.classList.add('hidden');
+
+                // Hide QR code container when changing view
+                qrCodeContainer.classList.add('hidden');
+
                 // Show the requested view
                 viewToShow.classList.remove('hidden');
                 viewToShow.classList.add('flex');
@@ -325,6 +349,7 @@
 
                 // Simulate AI match
                 const matches = suggestMatches('giver', giverData);
+                lastGiverMatches = matches; // Store matches
                 
                 giverMatchesResults.innerHTML = ''; // Clear previous results
 
@@ -369,6 +394,7 @@
 
                 // Simulate AI match
                 const matches = suggestMatches('seeker', seekerData);
+                lastSeekerMatches = matches; // Store matches
 
                 seekerMatchesResults.innerHTML = ''; // Clear previous results
 
@@ -403,6 +429,7 @@
             const showContactModal = (type, recipientName, recipientAddress, recipientOwner) => {
                 modalMessageInput.value = ''; // Clear previous message
                 modalConfirmationMessage.classList.add('hidden'); // Hide confirmation message
+                modalErrorMessage.classList.add('hidden'); // Hide error message
 
                 if (type === 'seeker') {
                     modalTitle.textContent = `Contact ${recipientName}`;
@@ -423,11 +450,13 @@
             sendMessageButton.addEventListener('click', () => {
                 const message = modalMessageInput.value;
                 if (message.trim() === '') {
-                    alert('Please enter a message before sending.'); // Using alert for simplicity, can be replaced with custom UI
+                    modalErrorMessage.classList.remove('hidden'); // Show error
+                    modalConfirmationMessage.classList.add('hidden'); // Hide confirmation
                     return;
                 }
                 // Simulate sending message
                 console.log('Message sent:', message);
+                modalErrorMessage.classList.add('hidden'); // Hide error
                 modalConfirmationMessage.classList.remove('hidden'); // Show confirmation
                 modalMessageInput.value = ''; // Clear input after sending
                 // Optionally, hide the modal after a short delay
@@ -443,7 +472,7 @@
                         const type = event.target.dataset.contactType;
                         const name = event.target.dataset.contactName;
                         const address = event.target.dataset.contactAddress;
-                        const owner = event.target.dataset.contactOwner;
+                        const owner = event.target.dataset.contactOwner; 
                         showContactModal(type, name, address, owner);
                     });
                 });
@@ -499,9 +528,46 @@
                 showView(contactView); // Show the contact view
             });
 
+            // --- QR Code Generation Logic ---
+            showQrButton.addEventListener('click', () => {
+                if (qrCodeContainer.classList.contains('hidden')) {
+                    // Replace with your actual Canvas app URL for presentation
+                    const appUrl = 'https://your-canvas-app-url.com'; 
+                    
+                    new QRious({
+                        element: qrCodeCanvas,
+                        value: appUrl,
+                        size: 200, // Adjust size as needed
+                        background: 'white',
+                        foreground: 'black'
+                    });
+                    qrCodeContainer.classList.remove('hidden');
+                } else {
+                    qrCodeContainer.classList.add('hidden');
+                }
+            });
+
+            // --- Raw Data Display Logic ---
+            showGiverRawDataButton.addEventListener('click', () => {
+                if (giverRawDataOutput.classList.contains('hidden')) {
+                    giverRawDataOutput.textContent = JSON.stringify(lastGiverMatches, null, 2);
+                    giverRawDataOutput.classList.remove('hidden');
+                } else {
+                    giverRawDataOutput.classList.add('hidden');
+                }
+            });
+
+            showSeekerRawDataButton.addEventListener('click', () => {
+                if (seekerRawDataOutput.classList.contains('hidden')) {
+                    seekerRawDataOutput.textContent = JSON.stringify(lastSeekerMatches, null, 2);
+                    seekerRawDataOutput.classList.remove('hidden');
+                } else {
+                    seekerRawDataOutput.classList.add('hidden');
+                }
+            });
+
+
             // Initial calls on page load
             populateRegions(); 
             updateNavHomeLink();
         });
-
-

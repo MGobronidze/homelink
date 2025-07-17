@@ -1,5 +1,5 @@
 
-    /* Custom styles for Inter font and general body */
+        /* Custom styles for Inter font and general body */
         body {
             font-family: 'Inter', sans-serif;
             background-color: #f0f2f5; /* Light gray background */
@@ -60,5 +60,17 @@
         }
         .modal-close-button:hover {
             color: #1f2937; /* gray-900 */
+        }
+        /* Style for preformatted JSON output */
+        .json-output {
+            background-color: #e2e8f0; /* gray-200 */
+            padding: 1rem;
+            border-radius: 0.5rem;
+            font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+            font-size: 0.875rem; /* text-sm */
+            white-space: pre-wrap; /* Ensures line breaks and spaces are preserved */
+            text-align: left;
+            max-height: 300px; /* Limit height for scrollability */
+            overflow-y: auto; /* Add scroll for long content */
         }
     
