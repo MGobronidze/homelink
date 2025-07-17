@@ -1,4 +1,3 @@
-
         document.addEventListener('DOMContentLoaded', () => {
             const homeView = document.getElementById('home-view');
             const giverFormView = document.getElementById('giver-form-view');
@@ -571,3 +570,4 @@
             populateRegions(); 
             updateNavHomeLink();
         });
+    
